@@ -1,20 +1,29 @@
 import tkinter as tk
 import os
 import random as r
+from tkinter import messagebox as mb
 
 win=tk.Tk()
 win.title("Viva")
 win.geometry("1200x700")
 win.minsize(width=1000,height=600)
-#p1 = tk.PhotoImage(file = 'vivaIcon.png')   
+p1 = tk.PhotoImage(file = 'D:/Coding Projects/Python projects/Viva app/vivaIcon.png')   
 # Icon set for program window
-#win.iconphoto(False, p1) 
+win.iconphoto(False, p1) 
+
+def goHomeorExit():
+    if mb.askyesno("Continue","Press YES to go home or NO to exit"):
+        main()
+    else:
+        win.destroy()
 
 def deleteF2():
     for child in f2.winfo_children():
         child.destroy()
 
-
+def quit():
+    if mb.askyesno("Exit","Want to exit?"):
+        win.destroy()
 
 
 #global f2
@@ -73,7 +82,7 @@ def reset(studNo,quesNo,quesList,studList):
                              relief=tk.RIDGE).grid(pady=50,ipadx=20)
     else:
         doneBtn = tk.Button(f2, text = 'Done',
-                             command=main,bg="#fde047",bd=3,fg="#000",
+                             command=goHomeorExit,bg="#fde047",bd=3,fg="#000",
                             font=("Century Gothic", 12),relief=tk.RIDGE).grid(pady=50,ipadx=20)
         
     for j in students:
@@ -81,15 +90,40 @@ def reset(studNo,quesNo,quesList,studList):
     #print(studList)
     
 
-def vivaFunc(r1,r2,studNo,quesNo):
-    heading.set("Viva")
-    quesFile=open(fname.get(),'r')
-    quesList=quesFile.readlines()
-    #check student and ques size should be less than their list
-    studList=[*range(int(r1), int(r2)+1, 1)]
-    #print(studList)
-    reset(studNo,quesNo,quesList,studList)
+# def vivaFunc(r1,r2,studNo,quesNo):
+#     heading.set("Viva")
+#     quesFile=open(fname.get(),'r')
+#     quesList=quesFile.readlines()
+#     #check student and ques size should be less than their list
+#     studList=[*range(int(r1), int(r2)+1, 1)]
+#     #print(studList)
+#     reset(studNo,quesNo,quesList,studList)
     
+    
+def validate(r1,r2,studNo,quesNo):
+    try:
+        r1=int(r1)
+        r2=int(r2)
+        studNo=int(studNo)
+        quesNo=int(quesNo)
+        quesFile=open(fname.get(),'r')
+        quesList=quesFile.readlines()
+        if(r1>r2 or r1<1):
+            mb.showerror("Wrong input","Please enter valid roll number range")
+        elif(studNo<1 or quesNo<1):
+            mb.showerror("Wrong input","Please enter integer numbers greater than 0")
+        elif(studNo>(r2-r1+1)):
+            mb.showerror("Wrong input","Number of students exceed the roll number range")
+        elif(quesNo>len(quesList)):
+            mb.showerror("Wrong input","Number of questions mentioned exceed the number of questions in file")
+        else:
+            heading.set("Viva")
+            studList=[*range(int(r1), int(r2)+1, 1)]
+            #print(studList)
+            reset(studNo,quesNo,quesList,studList)
+    except  Exception as e: 
+        print(e)
+        mb.showerror("Wrong input","Please enter integer numbers greater than 0")
     
 
 def beginViva():
@@ -111,7 +145,7 @@ def beginViva():
     quesNo= tk.Entry(f2, width= 10, font=("Century Gothic", 12),justify=tk.CENTER)
     quesNo.grid(row=2,column=2, ipady=10)
     quesNo.insert(0, 5)
-    beginBtn = tk.Button(f2, text = 'Start',command=lambda:vivaFunc(r1.get(),r2.get(),studNo.get(),quesNo.get()),bg="#fde047",bd=3,fg="#000",font=("Century Gothic", 12), relief=tk.RIDGE).grid(columnspan=4,pady=50,ipadx=20)
+    beginBtn = tk.Button(f2, text = 'Start',command=lambda:validate(r1.get(),r2.get(),studNo.get(),quesNo.get()),bg="#fde047",bd=3,fg="#000",font=("Century Gothic", 12), relief=tk.RIDGE).grid(columnspan=4,pady=50,ipadx=20)
 
 def addQues(ques):
     #print(ques)
@@ -166,7 +200,11 @@ def newFile():
 def main():
     deleteF2()
     heading.set("Welcome")
-    l1 = tk.Label(f2, text = "Select a file and begin viva", font=("Century Gothic", 12,"bold"),bg="#1f2937",fg="white").grid(pady=10)
+    l1 = tk.Label(f2, text = "Select a file and begin", font=("Century Gothic", 12,"bold"),bg="#1f2937",fg="white").grid(pady=30)
+    photo = tk.PhotoImage(file="D:/Coding Projects/Python projects/Viva app/vivaGif.gif")
+    img = tk.Label(f2, image=photo)
+    img.image = photo
+    img.grid()
 
 menubar = tk.Menu(win)
 filemenu = tk.Menu(menubar, tearoff=0)
@@ -176,7 +214,7 @@ menubar.add_cascade(label="File", menu=filemenu)
 
 menubar.add_command(label="Home", command=main)
 
-menubar.add_command(label="Exit", command=win.destroy)
+menubar.add_command(label="Exit", command=quit)
 
 win.config(menu=menubar)
 head=tk.Label(win,textvariable = heading,font =("Century Gothic", 22,"bold"),bg="#fde047",foreground="#1f2937").pack(fill = tk.X, ipady = 15)
